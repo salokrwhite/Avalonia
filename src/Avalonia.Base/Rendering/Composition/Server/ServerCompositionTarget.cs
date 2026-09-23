@@ -255,14 +255,14 @@ namespace Avalonia.Rendering.Composition.Server
                     if (_layer != null)
                     {
                         using (var context = _layer.CreateDrawingContext())
-                            RenderRootToContextWithClip(context, Root);
+                            RenderRootToContextWithClip(context, Root, fullRedraw);
 
-                        renderTargetContext.Clear(Colors.Transparent);
                         renderTargetContext.Transform = Matrix.Identity;
                         if (_layer.CanBlit)
                             _layer.Blit(renderTargetContext);
                         else
                         {
+                            renderTargetContext.Clear(Colors.Transparent);
                             var rect = new PixelRect(default, PixelSize).ToRect(1);
                             renderTargetContext.DrawBitmap(_layer, 1, rect, rect);
                         }
@@ -270,7 +270,7 @@ namespace Avalonia.Rendering.Composition.Server
                     }
                     else
                     {
-                        RenderRootToContextWithClip(renderTargetContext, Root);
+                        RenderRootToContextWithClip(renderTargetContext, Root, fullRedraw);
                         _overlays.Draw(renderTargetContext, false);
                     }
                 }
@@ -283,13 +283,16 @@ namespace Avalonia.Rendering.Composition.Server
             }
         }
 
-        void RenderRootToContextWithClip(IDrawingContextImpl context, ServerCompositionVisual root)
+        void RenderRootToContextWithClip(IDrawingContextImpl context, ServerCompositionVisual root, bool fullRedraw)
         {
             var useLayerClip = Compositor.Options.UseSaveLayerRootClip ?? false;
-            
+
             using (DirtyRects.BeginDraw(context))
             {
-                context.Clear(Colors.Transparent);
+                if (fullRedraw)
+                    context.Clear(Colors.Transparent);
+                else
+                    DirtyRects.Clear(context, Colors.Transparent);
                 if (useLayerClip)
                     context.PushLayer(DirtyRects.CombinedRect.ToRect());
 

@@ -118,6 +118,9 @@ public class DirectFbCompositionTests : TestBase
         CompareImages(image1, skipImmediate: true, skipGpu: true);
         CompareImages(image2, skipImmediate: true, skipGpu: true);
 
+        if (!advertised)
+            Assert.Equal(SKColors.Yellow, fb.GetPixel(100, 60));
+
     }
 
     void SaveFile(SKBitmap bmp, string name)

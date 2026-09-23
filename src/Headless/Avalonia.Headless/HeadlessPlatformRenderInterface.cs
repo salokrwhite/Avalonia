@@ -644,6 +644,11 @@ namespace Avalonia.Headless
 
             }
 
+            public void Clear(Color color, Rect rect)
+            {
+
+            }
+
             public IDrawingContextLayerImpl CreateLayer(PixelSize size)
             {
                 return new HeadlessBitmapStub(size, new Vector(96, 96));

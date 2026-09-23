@@ -25,6 +25,13 @@ namespace Avalonia.Platform
         void Clear(Color color);
 
         /// <summary>
+        /// Clears a region of the render target to the specified color.
+        /// </summary>
+        /// <param name="color">The color.</param>
+        /// <param name="rect">The region to clear.</param>
+        void Clear(Color color, Rect rect);
+
+        /// <summary>
         /// Draws a bitmap image.
         /// </summary>
         /// <param name="source">The bitmap image.</param>

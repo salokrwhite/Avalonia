@@ -14,6 +14,7 @@ internal partial class MultiDirtyRectTracker : IDirtyRectTracker
     private readonly CDirtyRegion2 _regions;
     private readonly IPlatformRenderInterfaceRegion _clipRegion;
     private readonly List<LtrbRect> _inflatedRects = new();
+    private readonly List<Rect> _clearRects = new();
     private Random _random = new();
 
     public MultiDirtyRectTracker(IPlatformRenderInterface platformRender, int maxDirtyRects, double maxOverhead)
@@ -28,6 +29,7 @@ internal partial class MultiDirtyRectTracker : IDirtyRectTracker
     public void FinalizeFrame(LtrbRect bounds)
     {
         _inflatedRects.Clear();
+        _clearRects.Clear();
         _clipRegion.Reset();
 
         var dirtyRegions = _regions.GetUninflatedDirtyRegions();
@@ -36,8 +38,10 @@ internal partial class MultiDirtyRectTracker : IDirtyRectTracker
         foreach (var rect in dirtyRegions)
         {
             var inflated = rect.Inflate(new(1)).IntersectOrEmpty(bounds);
+            var pixelRect = LtrbPixelRect.FromRectUnscaled(inflated);
             _inflatedRects.Add(inflated);
-            _clipRegion.AddRect(LtrbPixelRect.FromRectUnscaled(inflated));
+            _clipRegion.AddRect(pixelRect);
+            _clearRects.Add(pixelRect.ToRectUnscaled());
             combined = LtrbRect.FullUnion(combined, inflated);
         }
 
@@ -48,6 +52,12 @@ internal partial class MultiDirtyRectTracker : IDirtyRectTracker
     {
         ctx.PushClip(_clipRegion);
         return Disposable.Create(ctx.PopClip);
+    }
+
+    public void Clear(IDrawingContextImpl context, Color color)
+    {
+        foreach (var rect in _clearRects)
+            context.Clear(color, rect);
     }
 
     public bool IsEmpty => _regions.IsEmpty;
@@ -68,6 +78,7 @@ internal partial class MultiDirtyRectTracker : IDirtyRectTracker
         
         _regions.Initialize(bounds, _maxOverhead);
         _inflatedRects.Clear();
+        _clearRects.Clear();
         _clipRegion.Reset();
         CombinedRect = default;
     }

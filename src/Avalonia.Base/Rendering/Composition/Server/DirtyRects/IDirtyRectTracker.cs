@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Avalonia.Media;
 using Avalonia.Platform;
 
 namespace Avalonia.Rendering.Composition.Server;
@@ -11,6 +12,7 @@ internal interface IDirtyRectTracker : IDirtyRectCollector
     /// </summary>
     void FinalizeFrame(LtrbRect bounds);
     IDisposable BeginDraw(IDrawingContextImpl ctx);
+    void Clear(IDrawingContextImpl context, Color color);
     bool IsEmpty { get; }
     bool Intersects(LtrbRect rect);
     void Initialize(LtrbRect bounds);

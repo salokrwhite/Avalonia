@@ -239,6 +239,16 @@ namespace Avalonia.Skia
         }
 
         /// <inheritdoc />
+        public void Clear(Color color, Rect rect)
+        {
+            CheckLease();
+            using var paint = SKPaintCache.Shared.Get();
+            paint.Color = color.ToSKColor();
+            paint.BlendMode = SKBlendMode.Src;
+            Canvas.DrawRect(rect.ToSKRect(), paint);
+        }
+
+        /// <inheritdoc />
         public void DrawBitmap(IBitmapImpl source, double opacity, Rect sourceRect, Rect destRect)
         {
             CheckLease();

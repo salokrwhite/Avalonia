@@ -11,6 +11,7 @@ internal class RegionDirtyRectTracker : IDirtyRectTracker
 {
     private readonly IPlatformRenderInterfaceRegion _region;
     private readonly List<LtrbRect> _rects = new();
+    private readonly List<Rect> _clearRects = new();
     private Random _random = new();
 
     public RegionDirtyRectTracker(IPlatformRenderInterface platformRender)
@@ -30,8 +31,13 @@ internal class RegionDirtyRectTracker : IDirtyRectTracker
     public void FinalizeFrame(LtrbRect bounds)
     {
         _region.Reset();
-        foreach (var rc in _rects) 
-            _region.AddRect(GetInflatedPixelRect(rc));
+        _clearRects.Clear();
+        foreach (var rc in _rects)
+        {
+            var pixelRect = GetInflatedPixelRect(rc);
+            _region.AddRect(pixelRect);
+            _clearRects.Add(pixelRect.ToRectUnscaled());
+        }
         CombinedRect = _region.Bounds.ToLtrbRectUnscaled();
     }
 
@@ -41,11 +47,22 @@ internal class RegionDirtyRectTracker : IDirtyRectTracker
         return Disposable.Create(ctx.PopClip);
     }
 
+    public void Clear(IDrawingContextImpl context, Color color)
+    {
+        foreach (var rect in _clearRects)
+            context.Clear(color, rect);
+    }
+
     public bool IsEmpty => _rects.Count == 0;
 
     public bool Intersects(LtrbRect rect) => _region.Intersects(rect);
 
-    public void Initialize(LtrbRect bounds) => _rects.Clear();
+    public void Initialize(LtrbRect bounds)
+    {
+        _rects.Clear();
+        _clearRects.Clear();
+        _region.Reset();
+    }
 
     public void Visualize(IDrawingContextImpl context)
     {

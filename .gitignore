@@ -229,3 +229,4 @@ src/Browser/Avalonia.Browser/staticwebassets
 BenchmarkDotNet.Artifacts.*
 .tokensave
 /CLAUDE.md
+/local-packages/

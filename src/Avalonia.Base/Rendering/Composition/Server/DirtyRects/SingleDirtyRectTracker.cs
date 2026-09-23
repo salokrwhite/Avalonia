@@ -34,6 +34,12 @@ internal class SingleDirtyRectTracker : IDirtyRectTracker
         return Disposable.Create(ctx.PopClip);
     }
 
+    public void Clear(IDrawingContextImpl context, Color color)
+    {
+        if (!IsEmpty && !_extendedRect.IsZeroSize)
+            context.Clear(color, _extendedRect.ToRect());
+    }
+
     public bool IsEmpty => _rect?.IsZeroSize ?? true;
     public bool Intersects(LtrbRect rect) => _extendedRect.Intersects(rect);
 

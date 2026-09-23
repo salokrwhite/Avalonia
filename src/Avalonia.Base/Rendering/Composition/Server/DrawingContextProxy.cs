@@ -75,6 +75,12 @@ internal partial class CompositorDrawingContextProxy : IDrawingContextImpl,
         _impl.Clear(color);
     }
 
+    public void Clear(Color color, Rect rect)
+    {
+        Flush();
+        _impl.Clear(color, rect);
+    }
+
     public void DrawBitmap(IBitmapImpl source, double opacity, Rect sourceRect, Rect destRect)
     {
         Flush();
